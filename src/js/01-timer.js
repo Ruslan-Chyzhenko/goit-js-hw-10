@@ -24,7 +24,7 @@ document.querySelector("[data-start]").addEventListener("click", function () {
 // Function to start the countdown
 function startCountdown(targetDate) {
   // Calculate the difference between the target and current date in milliseconds
-  const timeDifference = targetDate.getTime() - new Date().getTime();
+  let timeDifference = targetDate.getTime() - new Date().getTime();
 
   // Update the interface every second
   countdownInterval = setInterval(function () {
