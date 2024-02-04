@@ -6,13 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Task 2</title>
     
-    <script type="module" crossorigin src="/goit-js-hw-10/assets/modulepreload-polyfill-ec808ebb.js"></script>
+    <script type="module" crossorigin src="/goit-js-hw-10/assets/modulepreload-polyfill-3cfb730f.js"></script>
+    <script type="module" crossorigin src="/goit-js-hw-10/assets/vendor-77e16229.js"></script>
+    <script type="module" crossorigin src="/goit-js-hw-10/assets/02-snackbar-2c9b7653.js"></script>
+    <link rel="stylesheet" href="/goit-js-hw-10/assets/vendor-7a007824.css">
+    <link rel="stylesheet" href="/goit-js-hw-10/assets/02-snackbar-1095b5db.css">
   </head>
   <body>
     <section>
     <h1>Snackbar Page</h1>
     <a href="./index.html">Go to Home</a> | <a href="./01-timer.html">Go to Timer</a>
+
+    <form class="form">
+      <label>
+        Delay (ms)
+        <input type="number" name="delay" required />
+      </label>
+    
+      <fieldset>
+        <legend>State</legend>
+        <label for="fulfilled">
+          <input type="radio" name="state" value="fulfilled" required />
+          Fulfilled
+        </label>
+        <label for="rejected">
+          <input type="radio" name="state" value="rejected" required />
+          Rejected
+        </label>
+      </fieldset>
+    
+      <button type="submit">Create notification</button>
+    </form>
+
     </section>
+    
     
   </body>
 </html>
