@@ -1,44 +1,64 @@
-// Import iziToas library
-import iziToast from "izitoast";
-// Add import styles
-import "izitoast/dist/css/iziToast.min.css";
-
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
 document.addEventListener('DOMContentLoaded', function () {
+  console.log('DOM content loaded!');
+  
   const formElement = document.getElementById('promiseForm');
 
   if (formElement) {
+    console.log('Form element found!');
+    
     formElement.addEventListener('submit', function (event) {
+      console.log('Form submitted!');
       event.preventDefault();
 
       const delayInput = document.querySelector('[name="delay"]');
       const stateInput = document.querySelector('[name="state"]:checked');
 
-      if (!delayInput.checkValidity() || !stateInput) {
-        // Validate inputs
-        iziToast.error({ title: 'Error', message: 'Invalid input. Please fill all fields.' });
+      if (!delayInput.checkValidity() || !stateInput || (stateInput.value !== 'fulfilled' && stateInput.value !== 'rejected')) {
+        console.error('Invalid input. Please fill all fields and select a valid state.');
+        iziToast.error({ title: 'Error', message: 'Invalid input. Please fill all fields and select a valid state.' });
         return;
       }
 
-      const delay = parseInt(delayInput.value);
+      const userDelay = parseInt(delayInput.value);
 
-      const promise = new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (stateInput.value === 'fulfilled') {
-            resolve(delay);
-          } else {
-            reject(delay);
-          }
-        }, delay);
-      });
+      const promise = createPromise(userDelay, stateInput);
 
-      promise
-        .then((delay) => {
-          iziToast.success({ title: 'Fulfilled', message: `✅ Fulfilled promise in ${delay}ms` });
-        })
-        .catch((delay) => {
-          iziToast.error({ title: 'Rejected', message: `❌ Rejected promise in ${delay}ms` });
-        });
+      handlePromise(promise);
     });
   }
 });
+
+function createPromise(delay, stateInput) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (stateInput.value === 'fulfilled') {
+        resolve(delay);
+      } else {
+        reject(delay);
+      }
+    }, delay);
+  });
+}
+
+function handlePromise(promise) {
+  promise
+    .then((delay) => {
+      console.log('Promise fulfilled!', delay);
+      iziToast.success({ title: 'Fulfilled', message: `✅ Fulfilled promise in ${delay}ms` });
+      formElement.reset();
+    })
+    .catch((delay) => {
+      console.error('Promise rejected!', delay);
+      iziToast.error({ title: 'Rejected', message: `❌ Rejected promise in ${delay}ms` });
+      formElement.reset();
+    });
+
+  // Add message
+  iziToast.info({
+    title: 'Additional Info',
+    message: `Type: ${stateInput.value}, Delay: ${userDelay}ms`
+  });
+}
