@@ -1,64 +1,79 @@
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-document.addEventListener('DOMContentLoaded', function () {
-  console.log('DOM content loaded!');
-  
-  const formElement = document.getElementById('promiseForm');
+//Import icon
+import errorIcon from '../img/izitoast-icon.svg';
+import closeIcon from '../img/izitoast-close.svg';
+import okIcon from '../img/izitoast-ok.svg';
 
-  if (formElement) {
-    console.log('Form element found!');
-    
-    formElement.addEventListener('submit', function (event) {
-      console.log('Form submitted!');
-      event.preventDefault();
+const formElement = document.querySelector('.form');
 
-      const delayInput = document.querySelector('[name="delay"]');
-      const stateInput = document.querySelector('[name="state"]:checked');
+formElement.addEventListener('submit', function(e) {
+    e.preventDefault();
 
-      if (!delayInput.checkValidity() || !stateInput || (stateInput.value !== 'fulfilled' && stateInput.value !== 'rejected')) {
-        console.error('Invalid input. Please fill all fields and select a valid state.');
-        iziToast.error({ title: 'Error', message: 'Invalid input. Please fill all fields and select a valid state.' });
+    const delayInput = document.querySelector('input[name="delay"]').value;
+    const stateInputs = document.querySelectorAll('input[name="state"]');
+    const selectedState = [...stateInputs].find(input => input.checked);
+
+    if (!delayInput || !selectedState || (selectedState.value !== 'fulfilled' && selectedState.value !== 'rejected')) {
+        showCustomToast('Error', 'Invalid input. Please fill all fields and select a valid state.', 'warning-message', '#FFA000', errorIcon);
         return;
-      }
+    }
 
-      const userDelay = parseInt(delayInput.value);
-
-      const promise = createPromise(userDelay, stateInput);
-
-      handlePromise(promise);
+    const delay = parseInt(delayInput);
+    const promise = new Promise((resolve, reject) => {
+        let timeoutId = setTimeout(() => {
+            if (selectedState.value === 'fulfilled') {
+                resolve(delay);
+            } else {
+                reject(delay);
+            }
+        }, delay);
     });
-  }
+
+    promise.then(
+        (delay) => {
+            showCustomToast('OK', `Fulfilled promise in ${delay}ms`, 'success-message', '#59A10D', okIcon);
+            formElement.reset();
+        }
+    ).catch(
+        (delay) => {
+            showCustomToast('Error', `Rejected promise in ${delay}ms`, 'warning-message', '#ef4040', errorIcon);
+            formElement.reset();
+        }
+    );
+
+    formElement.reset();
 });
 
-function createPromise(delay, stateInput) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (stateInput.value === 'fulfilled') {
-        resolve(delay);
-      } else {
-        reject(delay);
-      }
-    }, delay);
-  });
-}
-
-function handlePromise(promise) {
-  promise
-    .then((delay) => {
-      console.log('Promise fulfilled!', delay);
-      iziToast.success({ title: 'Fulfilled', message: `✅ Fulfilled promise in ${delay}ms` });
-      formElement.reset();
-    })
-    .catch((delay) => {
-      console.error('Promise rejected!', delay);
-      iziToast.error({ title: 'Rejected', message: `❌ Rejected promise in ${delay}ms` });
-      formElement.reset();
+function showCustomToast(title, message, className, backgroundColor, iconUrl) {
+    iziToast.show({
+        messageSize: 'auto',
+        title: title,
+        message: message,
+        class: className,
+        position: 'topCenter',
+        titleColor: '#ffffff',
+        titleSize: '16px',
+        titleLineHeight: '1.5',
+        messageColor: '#ffffff',
+        messageSize: '16px',
+        messageLineHeight: '1.5',
+        backgroundColor: backgroundColor,
+        iconColor: '#ffffff',
+        iconUrl: iconUrl,
+        imageWidth: 50,
+        timeout: 10000,
+        close: false,
+        buttons: [
+            [
+                `<button type="button" style="background-color: ${backgroundColor}"><img src=${closeIcon}></button>`,
+                function (instance, toast) {
+                    instance.hide({ transitionOut: 'fadeOut' }, toast);
+                },
+            ],
+        ],
+        closeOnEscape: true,
+        pauseOnHover: false,
     });
-
-  // Add message
-  iziToast.info({
-    title: 'Additional Info',
-    message: `Type: ${stateInput.value}, Delay: ${userDelay}ms`
-  });
 }
